@@ -184,156 +184,165 @@ class _JiraFormPageState extends State<JiraFormPage> {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Gerador de descrição Jira')),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: max),
-          child: ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                alignment: WrapAlignment.start,
-                crossAxisAlignment:
-                    WrapCrossAlignment.start, // mantém tudo alinhado no topo
-                children: [
-                  // Tipo
-                  _box(
-                    child: DropdownButtonFormField<EntryType>(
-                      value: _tipo,
-                      decoration: const InputDecoration(labelText: 'Tipo *'),
-                      items: const [
-                        DropdownMenuItem(
-                            value: EntryType.bug, child: Text('Bug')),
-                        DropdownMenuItem(
-                            value: EntryType.solution, child: Text('Solução')),
-                      ],
-                      onChanged: (v) =>
-                          setState(() => _tipo = v ?? EntryType.bug),
-                    ),
-                  ),
-                  // Ambiente
-                  _box(
-                    child: DropdownButtonFormField<String>(
-                      value: _ambiente,
-                      decoration:
-                          const InputDecoration(labelText: 'Ambiente *'),
-                      items: const [
-                        DropdownMenuItem(value: 'TST', child: Text('TST')),
-                        DropdownMenuItem(value: 'HMG', child: Text('HMG')),
-                        DropdownMenuItem(value: 'PROD', child: Text('PROD')),
-                        DropdownMenuItem(value: 'DEV', child: Text('DEV')),
-                      ],
-                      onChanged: (v) => setState(() => _ambiente = v ?? 'TST'),
-                    ),
-                  ),
-                  // CNPJ (opcional)
-                  _box(
-                    child: TextField(
-                      controller: _cnpj,
-                      onChanged: (_) => setState(() {}),
-                      decoration: const InputDecoration(
-                        labelText: 'CNPJ',
-                        hintText: 'Ex.: 91.821.122/0001-02',
-                        border: OutlineInputBorder(),
+      body: SingleChildScrollView(
+        child: Center(
+          child: Container(
+            width: max,
+            // constraints: BoxConstraints(maxWidth:max ),
+            child: Column(
+              // padding: const EdgeInsets.all(16),
+              children: [
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  alignment: WrapAlignment.start,
+                  crossAxisAlignment:
+                      WrapCrossAlignment.start, // mantém tudo alinhado no topo
+                  children: [
+                    // Tipo
+                    _box(
+                      child: DropdownButtonFormField<EntryType>(
+                        value: _tipo,
+                        decoration: const InputDecoration(labelText: 'Tipo *'),
+                        items: const [
+                          DropdownMenuItem(
+                              value: EntryType.bug, child: Text('Bug')),
+                          DropdownMenuItem(
+                              value: EntryType.solution,
+                              child: Text('Solução')),
+                        ],
+                        onChanged: (v) =>
+                            setState(() => _tipo = v ?? EntryType.bug),
                       ),
                     ),
-                  ),
-                  // CPF (opcional)
-                  _box(
-                    child: TextField(
-                      controller: _cpf,
-                      onChanged: (_) => setState(() {}),
-                      decoration: const InputDecoration(
-                        labelText: 'CPF',
-                        hintText: 'Ex.: 003.436.790-00',
-                        border: OutlineInputBorder(),
+                    // Ambiente
+                    _box(
+                      child: DropdownButtonFormField<String>(
+                        value: _ambiente,
+                        decoration:
+                            const InputDecoration(labelText: 'Ambiente *'),
+                        items: const [
+                          DropdownMenuItem(value: 'TST', child: Text('TST')),
+                          DropdownMenuItem(value: 'HMG', child: Text('HMG')),
+                          DropdownMenuItem(value: 'PROD', child: Text('PROD')),
+                          DropdownMenuItem(value: 'DEV', child: Text('DEV')),
+                        ],
+                        onChanged: (v) =>
+                            setState(() => _ambiente = v ?? 'TST'),
                       ),
                     ),
-                  ),
-                  // Descrição (obrigatório)
-                  _box(
-                    child: TextField(
-                      controller: _descricao,
-                      maxLines: 4,
-                      onChanged: (_) => setState(() {}),
-                      decoration: InputDecoration(
-                        labelText: '${_tituloDescricao} *',
-                        hintText: _tipo == EntryType.bug
-                            ? 'Explique o problema observado de forma objetiva.'
-                            : 'Descreva as alterações implementadas.',
-                        border: const OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                  // Passos (obrigatório)
-                  _box(
-                    child: TextField(
-                      controller: _passos,
-                      maxLines: 6,
-                      onChanged: (_) => setState(() {}),
-                      decoration: const InputDecoration(
-                        labelText: 'Passos para reprodução *',
-                        hintText:
-                            'Um passo por linha.\nEx.: Criar cobrança recorrente via boleto...',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                  ),
-                  // Resultado atual e esperado (apenas para Bug)
-                  if (_tipo == EntryType.bug)
+                    // CNPJ (opcional)
                     _box(
                       child: TextField(
-                        controller: _resultadoAtual,
-                        maxLines: 3,
+                        controller: _cnpj,
                         onChanged: (_) => setState(() {}),
                         decoration: const InputDecoration(
-                          labelText: 'Resultado atual',
-                          hintText:
-                              'Ex.: Status exibido: “Desabilitado por cartão expirado”.',
+                          labelText: 'CNPJ',
+                          hintText: 'Ex.: 91.821.122/0001-02',
                           border: OutlineInputBorder(),
                         ),
                       ),
                     ),
-                  if (_tipo == EntryType.bug)
+                    // CPF (opcional)
                     _box(
                       child: TextField(
-                        controller: _resultadoEsperado,
-                        maxLines: 3,
+                        controller: _cpf,
                         onChanged: (_) => setState(() {}),
                         decoration: const InputDecoration(
-                          labelText: 'Resultado esperado *',
-                          hintText:
-                              'Ex.: Status exibido: “Cancelado” (ou equivalente).',
+                          labelText: 'CPF',
+                          hintText: 'Ex.: 003.436.790-00',
                           border: OutlineInputBorder(),
                         ),
                       ),
                     ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  FilledButton.icon(
-                    onPressed: missing.isEmpty ? _copiar : null,
-                    icon: const Icon(Icons.copy),
-                    label: const Text('Copiar (Markdown)'),
-                  ),
-                  const SizedBox(width: 12),
-                  if (missing.isNotEmpty)
-                    Flexible(
-                      child: Text(
-                        'Preencha: ${missing.join(', ')}',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.error,
+                    // Descrição (obrigatório)
+                    _box(
+                      child: TextField(
+                        controller: _descricao,
+                        maxLines: 4,
+                        onChanged: (_) => setState(() {}),
+                        decoration: InputDecoration(
+                          labelText: '${_tituloDescricao} *',
+                          hintText: _tipo == EntryType.bug
+                              ? 'Explique o problema observado de forma objetiva.'
+                              : 'Descreva as alterações implementadas.',
+                          border: const OutlineInputBorder(),
                         ),
                       ),
                     ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              _previewBox(_renderMarkdown()),
-            ],
+                    // Passos (obrigatório)
+                    _box(
+                      child: TextField(
+                        controller: _passos,
+                        maxLines: 6,
+                        onChanged: (_) => setState(() {}),
+                        decoration: const InputDecoration(
+                          labelText: 'Passos para reprodução *',
+                          hintText:
+                              'Um passo por linha.\nEx.: Criar cobrança recorrente via boleto...',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                    // Resultado atual e esperado (apenas para Bug)
+                    if (_tipo == EntryType.bug)
+                      _box(
+                        child: TextField(
+                          controller: _resultadoAtual,
+                          maxLines: 3,
+                          onChanged: (_) => setState(() {}),
+                          decoration: const InputDecoration(
+                            labelText: 'Resultado atual',
+                            hintText:
+                                'Ex.: Status exibido: “Desabilitado por cartão expirado”.',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                      ),
+                    if (_tipo == EntryType.bug)
+                      _box(
+                        child: TextField(
+                          controller: _resultadoEsperado,
+                          maxLines: 3,
+                          onChanged: (_) => setState(() {}),
+                          decoration: const InputDecoration(
+                            labelText: 'Resultado esperado *',
+                            hintText:
+                                'Ex.: Status exibido: “Cancelado” (ou equivalente).',
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                      ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        FilledButton.icon(
+                          onPressed: missing.isEmpty ? _copiar : null,
+                          icon: const Icon(Icons.copy),
+                          label: const Text('Copiar (Markdown)'),
+                        ),
+                        const SizedBox(width: 12),
+                        if (missing.isNotEmpty)
+                          Flexible(
+                            child: Text(
+                              'Preencha: ${missing.join(', ')}',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.error,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      width: 840,
+                      child: _previewBox(_renderMarkdown()),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 26),
+              ],
+            ),
           ),
         ),
       ),
