@@ -1,54 +1,76 @@
+# Nome descritivo do workflow. Aparece na aba "Actions".
 name: Deploy Flutter Web to GitHub Pages
 
 on:
   push:
-    branches: [ "main" ]  # publique ao dar push na main (troque se quiser)
+    branches: [ "main" ]  # Dispara o workflow em todo push na branch main. Troque aqui se usar outra branch de origem.
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: read   # Permissão de leitura do código-fonte (necessária para o checkout).
+  pages: write     # Permite publicar no GitHub Pages.
+  id-token: write  # Necessário para o deploy-pages (OIDC) autenticar a publicação.
 
+# Garante que só uma execução deste workflow (grupo "pages") rode por vez.
+# Se houver um novo push enquanto um job ainda está rodando, o anterior é cancelado.
 concurrency:
   group: "pages"
   cancel-in-progress: true
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  build:                 # Primeiro job: builda o Flutter Web e gera o artefato.
+    runs-on: ubuntu-latest  # Runner hospedado pelo GitHub (Ubuntu).
+
     steps:
+      # 1) Baixa o código do repositório no runner.
       - name: Checkout
         uses: actions/checkout@v4
 
+      # 2) Instala Flutter no runner e seleciona o canal "stable".
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          channel: stable   # Você pode fixar uma versão com "flutter-version: 3.24.0" se quiser reprodutibilidade.
 
+      # 3) Informativo: imprime a versão do Flutter para facilitar debug.
       - name: Flutter info
         run: flutter --version
 
+      # 4) Habilita o alvo Web e baixa as dependências do pubspec.yaml.
       - name: Enable web & get deps
         run: |
           flutter config --enable-web
           flutter pub get
 
+      # 5) Faz o build de produção do app Flutter Web.
+      #    IMPORTANTE: --base-href deve corresponder ao nome do repositório
+      #    quando se trata de "Project Page" (https://usuario.github.io/NOME_REPO/).
+      #    Se você fosse publicar em "User/Org Page" (https://usuario.github.io),
+      #    o correto seria --base-href "/".
       - name: Build Flutter Web
         # IMPORTANTE: base-href precisa ser o nome do repositório
         run: flutter build web --release --base-href "/jira_description_helper/"
 
+      # 6) Empacota a pasta build/web como "artefato de Pages".
+      #    O job de deploy abaixo vai usar exatamente este artefato para publicar.
       - name: Upload artifact (build/web)
         uses: actions/upload-pages-artifact@v3
         with:
-          path: build/web
+          path: build/web   # Diretório gerado pelo build do Flutter Web.
 
+  # Segundo job: realiza a publicação do artefato no GitHub Pages.
   deploy:
+    # Cria/usa o ambiente "github-pages" (aparece nas configurações do repo).
+    # A URL final da página é exposta em "deployment.outputs.page_url".
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    needs: build
+
+    needs: build            # Este job só inicia após o job "build" terminar com sucesso.
     runs-on: ubuntu-latest
+
     steps:
+      # 7) Publica o artefato do job anterior no GitHub Pages.
+      #    A action "deploy-pages" cuida de criar a versão estática e apontar o Pages para ela.
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
